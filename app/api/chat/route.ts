@@ -57,11 +57,25 @@ export async function POST(req: Request) {
 
   console.log('userID', userID)
   console.log('teamID', teamID)
-  // console.log('template', template)
+  console.log('template', template)
   console.log('model', model)
-  // console.log('config', config)
+  console.log('config', config)
 
   const { model: modelNameString, apiKey: modelApiKey, ...modelParams } = config
+  
+  console.log('Creating model client for:', model.providerId, 'with model:', model.id)
+  
+  try {
+    const modelClient = getModelClient(model, config)
+    console.log('Model client created successfully')
+  } catch (clientError: any) {
+    console.error('Error creating model client:', clientError)
+    return new Response(
+      `Failed to create model client: ${clientError.message}`,
+      { status: 500 }
+    )
+  }
+  
   const modelClient = getModelClient(model, config)
 
   try {
