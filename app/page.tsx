@@ -8,6 +8,8 @@ import { ChatPicker } from '@/components/chat-picker'
 import { ChatSettings } from '@/components/chat-settings'
 import { NavBar } from '@/components/navbar'
 import { Preview } from '@/components/preview'
+import { AnimatedBackground } from '@/components/ui/animated-background'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { useAuth } from '@/lib/auth'
 import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages'
 import { LLMModelConfig } from '@/lib/models'
@@ -263,16 +265,18 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen max-h-screen">
-      {supabase && (
-        <AuthDialog
-          open={isAuthDialogOpen}
-          setOpen={setAuthDialog}
-          view={authView}
-          supabase={supabase}
-        />
-      )}
-      <div className="grid w-full md:grid-cols-2">
+    <ErrorBoundary>
+      <AnimatedBackground />
+      <main className="flex min-h-screen max-h-screen relative">
+        {supabase && (
+          <AuthDialog
+            open={isAuthDialogOpen}
+            setOpen={setAuthDialog}
+            view={authView}
+            supabase={supabase}
+          />
+        )}
+        <div className="grid w-full md:grid-cols-2 relative z-10">
         <div
           className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${fragment ? 'col-span-1' : 'col-span-2'}`}
         >
@@ -333,6 +337,7 @@ export default function Home() {
           onClose={() => setFragment(undefined)}
         />
       </div>
-    </main>
+      </main>
+    </ErrorBoundary>
   )
 }
