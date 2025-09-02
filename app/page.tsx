@@ -6,6 +6,7 @@ import { Chat } from '@/components/chat'
 import { ChatInput } from '@/components/chat-input'
 import { ChatPicker } from '@/components/chat-picker'
 import { ChatSettings } from '@/components/chat-settings'
+import { LandingPage } from '@/components/landing-page'
 import { NavBar } from '@/components/navbar'
 import { Preview } from '@/components/preview'
 import { AnimatedBackground } from '@/components/ui/animated-background'
@@ -71,11 +72,31 @@ export default function Home() {
     schema,
     onError: (error) => {
       console.error('Error submitting request:', error)
-      if (error.message.includes('limit')) {
-        setIsRateLimited(true)
+      
+      // Parse structured error responses
+      let parsedError = null
+      try {
+        if (error.message.startsWith('{')) {
+          parsedError = JSON.parse(error.message)
+        }
+      } catch (e) {
+        // Not a JSON error, use the raw message
       }
-
-      setErrorMessage(error.message)
+      
+      if (parsedError) {
+        if (parsedError.code === 'AUTH_REQUIRED') {
+          setErrorMessage(parsedError.error + ' Click the sign in button to get started.')
+          setAuthDialog(true) // Automatically open auth dialog
+        } else {
+          setErrorMessage(parsedError.error || error.message)
+        }
+      } else {
+        // Handle traditional error messages
+        if (error.message.includes('limit')) {
+          setIsRateLimited(true)
+        }
+        setErrorMessage(error.message)
+      }
     },
     onFinish: async ({ object: fragment, error }) => {
       if (!error) {
@@ -264,80 +285,109 @@ export default function Home() {
     setCurrentPreview({ fragment: undefined, result: undefined })
   }
 
+  // Show landing page when no messages, chat interface when there are messages
+  const showLandingPage = messages.length === 0 && !isLoading
+
   return (
     <ErrorBoundary>
       <AnimatedBackground />
-      <main className="flex min-h-screen max-h-screen relative">
-        {supabase && (
-          <AuthDialog
-            open={isAuthDialogOpen}
-            setOpen={setAuthDialog}
-            view={authView}
-            supabase={supabase}
-          />
-        )}
-        <div className="grid w-full md:grid-cols-2 relative z-10">
-        <div
-          className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${fragment ? 'col-span-1' : 'col-span-2'}`}
-        >
-          <NavBar
-            session={session}
-            showLogin={() => setAuthDialog(true)}
-            signOut={logout}
-            onSocialClick={handleSocialClick}
-            onClear={handleClearChat}
-            canClear={messages.length > 0}
-            canUndo={messages.length > 1 && !isLoading}
-            onUndo={handleUndo}
-          />
-          <Chat
-            messages={messages}
-            isLoading={isLoading}
-            setCurrentPreview={setCurrentPreview}
-          />
-          <ChatInput
-            retry={retry}
-            isErrored={error !== undefined}
-            errorMessage={errorMessage}
-            isLoading={isLoading}
-            isRateLimited={isRateLimited}
-            stop={stop}
-            input={chatInput}
-            handleInputChange={handleSaveInputChange}
-            handleSubmit={handleSubmitAuth}
-            isMultiModal={currentModel?.multiModal || false}
-            files={files}
-            handleFileChange={handleFileChange}
-          >
-            <ChatPicker
-              templates={templates}
-              selectedTemplate={selectedTemplate}
-              onSelectedTemplateChange={setSelectedTemplate}
-              models={filteredModels}
-              languageModel={languageModel}
-              onLanguageModelChange={handleLanguageModelChange}
-            />
-            <ChatSettings
-              languageModel={languageModel}
-              onLanguageModelChange={handleLanguageModelChange}
-              apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
-              baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
-            />
-          </ChatInput>
-        </div>
-        <Preview
-          teamID={userTeam?.id}
-          accessToken={session?.access_token}
-          selectedTab={currentTab}
-          onSelectedTabChange={setCurrentTab}
-          isChatLoading={isLoading}
-          isPreviewLoading={isPreviewLoading}
-          fragment={fragment}
-          result={result as ExecutionResult}
-          onClose={() => setFragment(undefined)}
+      {supabase && (
+        <AuthDialog
+          open={isAuthDialogOpen}
+          setOpen={setAuthDialog}
+          view={authView}
+          supabase={supabase}
         />
-      </div>
-      </main>
+      )}
+      
+      {showLandingPage ? (
+        <LandingPage
+          onSubmit={handleSubmitAuth}
+          onInputChange={handleSaveInputChange}
+          onFileChange={handleFileChange}
+          chatInput={chatInput}
+          files={files}
+          isLoading={isLoading}
+          isErrored={error !== undefined}
+          errorMessage={errorMessage}
+          isRateLimited={isRateLimited}
+          retry={retry}
+          stop={stop}
+          currentModel={currentModel}
+          languageModel={languageModel}
+          onLanguageModelChange={handleLanguageModelChange}
+          templates={templates}
+          selectedTemplate={selectedTemplate}
+          onSelectedTemplateChange={setSelectedTemplate}
+          filteredModels={filteredModels}
+          onShowAuth={() => setAuthDialog(true)}
+          session={session}
+        />
+      ) : (
+        <main className="flex min-h-screen max-h-screen relative">
+          <div className="grid w-full md:grid-cols-2 relative z-10">
+            <div
+              className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${fragment ? 'col-span-1' : 'col-span-2'}`}
+            >
+              <NavBar
+                session={session}
+                showLogin={() => setAuthDialog(true)}
+                signOut={logout}
+                onSocialClick={handleSocialClick}
+                onClear={handleClearChat}
+                canClear={messages.length > 0}
+                canUndo={messages.length > 1 && !isLoading}
+                onUndo={handleUndo}
+              />
+              <Chat
+                messages={messages}
+                isLoading={isLoading}
+                setCurrentPreview={setCurrentPreview}
+              />
+              <ChatInput
+                retry={retry}
+                isErrored={error !== undefined}
+                errorMessage={errorMessage}
+                isLoading={isLoading}
+                isRateLimited={isRateLimited}
+                stop={stop}
+                input={chatInput}
+                handleInputChange={handleSaveInputChange}
+                handleSubmit={handleSubmitAuth}
+                isMultiModal={currentModel?.multiModal || false}
+                files={files}
+                handleFileChange={handleFileChange}
+              >
+                <ChatPicker
+                  templates={templates}
+                  selectedTemplate={selectedTemplate}
+                  onSelectedTemplateChange={setSelectedTemplate}
+                  models={filteredModels}
+                  languageModel={languageModel}
+                  onLanguageModelChange={handleLanguageModelChange}
+                />
+                <ChatSettings
+                  languageModel={languageModel}
+                  onLanguageModelChange={handleLanguageModelChange}
+                  apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
+                  baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
+                />
+              </ChatInput>
+            </div>
+            <Preview
+              teamID={userTeam?.id}
+              accessToken={session?.access_token}
+              selectedTab={currentTab}
+              onSelectedTabChange={setCurrentTab}
+              isChatLoading={isLoading}
+              isPreviewLoading={isPreviewLoading}
+              fragment={fragment}
+              result={result as ExecutionResult}
+              onClose={() => setFragment(undefined)}
+            />
+          </div>
+        </main>
+      )}
     </ErrorBoundary>
   )
 }

@@ -117,19 +117,48 @@ export async function POST(req: Request) {
 
     if (isAccessDeniedError) {
       return new Response(
-        'Access denied. Please make sure your API key is valid.',
+        JSON.stringify({ 
+          error: 'Authentication required. Please sign in to continue.', 
+          code: 'AUTH_REQUIRED',
+          details: 'You need to be signed in to generate code. Please click the sign in button.' 
+        }),
         {
           status: 403,
+          headers: { 'Content-Type': 'application/json' },
         },
       )
     }
 
-    console.error('Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      stack: error.stack
+    })
+
+    // Provide specific error messages based on error type
+    let errorMessage = 'An unexpected error has occurred. Please try again later.'
+    let errorCode = 'UNKNOWN_ERROR'
+    
+    if (error.message?.includes('API key')) {
+      errorMessage = 'Invalid API key. Please check your API key configuration.'
+      errorCode = 'INVALID_API_KEY'
+    } else if (error.message?.includes('model')) {
+      errorMessage = 'Model error. Please try selecting a different model.'
+      errorCode = 'MODEL_ERROR'
+    } else if (error.statusCode === 500) {
+      errorMessage = 'Server error. Please try again in a moment.'
+      errorCode = 'SERVER_ERROR'
+    }
 
     return new Response(
-      'An unexpected error has occurred. Please try again later.',
+      JSON.stringify({ 
+        error: errorMessage, 
+        code: errorCode,
+        details: error.message || 'Unknown error occurred' 
+      }),
       {
         status: 500,
+        headers: { 'Content-Type': 'application/json' },
       },
     )
   }

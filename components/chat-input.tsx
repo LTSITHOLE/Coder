@@ -27,6 +27,7 @@ export function ChatInput({
   files,
   handleFileChange,
   children,
+  placeholder = "Describe your app...",
 }: {
   retry: () => void
   isErrored: boolean
@@ -41,6 +42,7 @@ export function ChatInput({
   files: File[]
   handleFileChange: (change: SetStateAction<File[]>) => void
   children: React.ReactNode
+  placeholder?: string
 }) {
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
     handleFileChange((prev) => {
@@ -188,7 +190,7 @@ export function ChatInput({
             maxRows={5}
             className="text-normal px-3 resize-none ring-0 bg-inherit w-full m-0 outline-none"
             required={true}
-            placeholder="Describe your app..."
+            placeholder={placeholder}
             disabled={isErrored}
             value={input}
             onChange={handleInputChange}
