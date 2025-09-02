@@ -41,6 +41,7 @@ You'll need to set these environment variables in your Netlify dashboard:
 - `GOOGLE_VERTEX_CREDENTIALS`
 - `MISTRAL_API_KEY`
 - `XAI_API_KEY`
+- `OPENROUTER_API_KEY`
 - `NEXT_PUBLIC_SITE_URL` - Your Netlify domain (e.g., `your-app.netlify.app`)
 - `RATE_LIMIT_MAX_REQUESTS`
 - `RATE_LIMIT_WINDOW`

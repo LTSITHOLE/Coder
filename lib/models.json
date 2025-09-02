@@ -468,6 +468,76 @@
       "providerId": "ollama",
       "name": "Mistral Large",
       "multiModal": false
+    },
+    {
+      "id": "openai/gpt-4o",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "GPT-4o (OpenRouter)",
+      "multiModal": true
+    },
+    {
+      "id": "openai/gpt-4o-mini",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "GPT-4o Mini (OpenRouter)",
+      "multiModal": true
+    },
+    {
+      "id": "anthropic/claude-3.5-sonnet",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Claude 3.5 Sonnet (OpenRouter)",
+      "multiModal": true
+    },
+    {
+      "id": "anthropic/claude-3.5-haiku",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Claude 3.5 Haiku (OpenRouter)",
+      "multiModal": true
+    },
+    {
+      "id": "meta-llama/llama-3.3-70b-instruct",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Llama 3.3 70B (OpenRouter)",
+      "multiModal": false
+    },
+    {
+      "id": "meta-llama/llama-3.1-405b-instruct",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Llama 3.1 405B (OpenRouter)",
+      "multiModal": false
+    },
+    {
+      "id": "google/gemini-2.0-flash-exp",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Gemini 2.0 Flash (OpenRouter)",
+      "multiModal": true
+    },
+    {
+      "id": "deepseek/deepseek-r1",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "DeepSeek R1 (OpenRouter)",
+      "multiModal": false
+    },
+    {
+      "id": "qwen/qwen-2.5-coder-32b-instruct",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Qwen 2.5 Coder 32B (OpenRouter)",
+      "multiModal": false
+    },
+    {
+      "id": "mistralai/mistral-large",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Mistral Large (OpenRouter)",
+      "multiModal": false
     }
   ]
 }
