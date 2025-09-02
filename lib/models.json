@@ -680,6 +680,14 @@
       "name": "Dolphin Mixtral 8x7B",
       "multiModal": false,
       "free": true
+    },
+    {
+      "id": "moonshotai/kimi-k2",
+      "provider": "OpenRouter",
+      "providerId": "openrouter",
+      "name": "Kimi K2",
+      "multiModal": false,
+      "free": true
     }
   ]
 }
